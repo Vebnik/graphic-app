@@ -1,0 +1,8 @@
+services:
+  app:
+    container_name: graphic_app
+    build: .
+    expose:
+      - 80
+    ports:
+      - "80:80"
