@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import * as d3Time from "d3-time";
 
 
-const dateRange = d3Time.timeDays(new Date(2020, 5, 1), new Date(2025, 11, 31));
+const dateRange = d3Time.timeDays(new Date(2025, 10, 1), new Date(2025, 11, 31));
 
 export interface Data {
   [key: string]: {
@@ -32,27 +32,27 @@ export const useGraphicStore = create<Store>()((set, get) => ({
 
   fetchData: async () => {
     const data: Data = {
-      "mounth": dateRange.map((date) => ({
+      "mounth": dateRange.map((date, i) => ({
         title: "Mounth, m3",
-        value: d3.randomInt(0, 50)(),
+        value: d3.randomUniform(1 + i, 3 + i)(),
         color: "#fade91",
         date,
       })),
-      "day": dateRange.map((date) => ({
+      "day": dateRange.map((date, i) => ({
         title: "m3 / day",
-        value: d3.randomInt(1, 30)(),
+        value: d3.randomUniform(3 + i, 4 + i)(),
         color: "#e8fa91",
         date,
       })),
-      "water": dateRange.map((date) => ({
+      "water": dateRange.map((date, i) => ({
         title: "water, %(0-100)",
-        value: d3.randomInt(0, 100)(),
+        value: d3.randomUniform(5 + i, 6 + i)(),
         color: "#a1f0c2",
         date,
       })),
-      "depth": dateRange.map((date) => ({
+      "depth": dateRange.map((date, i) => ({
         title: "Depth",
-        value: d3.randomInt(50, 300)(),
+        value: d3.randomUniform(1 + i, 5 + i)(),
         color: "#a1cbf0",
         date,
       })),

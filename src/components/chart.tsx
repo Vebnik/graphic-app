@@ -67,7 +67,9 @@ export function GraphicChart({ data, visibleYaxis, yAxis }: GraphicChartProps) {
           .attr("text-anchor", "middle")
           .attr("font-size", "14")
           .text(title)
-      );
+      )
+      .transition()
+      .duration(1000);
   };
 
   const renderPath = (
@@ -88,9 +90,9 @@ export function GraphicChart({ data, visibleYaxis, yAxis }: GraphicChartProps) {
       .selectAll("path")
       .data(data)
       .join("path")
-      .style("mix-blend-mode", "multiply")
+      // .style("mix-blend-mode", "multiply")
       // @ts-expect-error
-      .attr("d", line);
+      .attr("d", line)
   };
 
   const renderXaxis = (
@@ -103,6 +105,8 @@ export function GraphicChart({ data, visibleYaxis, yAxis }: GraphicChartProps) {
     svg
       .append("g")
       .attr("transform", transform)
+      // .transition()
+      // .duration(500)
       .attr("id", id)
       .attr("color", color)
       .call(tick);
@@ -123,7 +127,8 @@ export function GraphicChart({ data, visibleYaxis, yAxis }: GraphicChartProps) {
     const marginTop = 20;
     const marginRight = 20;
     const marginBottom = 20;
-    const marginLeft = 85 + visibleYaxis.length * 80;
+    const marginLeftInit = visibleYaxis.length !== yAxis.length ? 85 : 0
+    const marginLeft = marginLeftInit + visibleYaxis.length * 80;
 
     // Declare the x ----------------------------------------------------- //
     const x = d3
@@ -157,39 +162,46 @@ export function GraphicChart({ data, visibleYaxis, yAxis }: GraphicChartProps) {
     );
     // -------------------------------------------------------------------- //
 
-    // Declare the shared y  ---------------------------------------------- //
-    const commonItems = Object.values(data).flat();
+    // Declare the common y  ---------------------------------------------- //
 
-    const commonY = d3
-      .scaleLinear()
-      // @ts-expect-error
-      .domain([0, d3.max(commonItems, (d) => d.value)])
-      .nice()
-      .range([height - marginBottom, marginTop]);
+    const commonItems = yAxis.filter(el => !visibleYaxis.includes(el)).map(key => data[key]).flat();
 
-    renderYaxis(
-      svg,
-      `translate(${marginLeft - 90 * visibleYaxis.length + 1},0)`,
-      "#a0e6ff",
-      "y-axis-common",
-      "Common",
-      // @ts-expect-error: Mismatch type
-      d3.axisLeft(commonY).ticks(20)
-    );
+    // console.log(commonAxis)
+    // const commonItems = Object.values(data).flat();
 
-    const points = commonItems.map((d) => [
-      x(d.date),
-      commonY(d.value),
-      d.title,
-    ]);
+    if (visibleYaxis.length !== yAxis.length) {
+      const commonY = d3
+        .scaleLinear()
+        // @ts-expect-error
+        .domain([0, d3.max(commonItems, (d) => d.value)])
+        .nice()
+        .range([height - marginBottom, marginTop]);
+  
+      renderYaxis(
+        svg,
+        `translate(${marginLeft - 90 * visibleYaxis.length + 1},0)`,
+        "#a0e6ff",
+        "y-axis-common",
+        "Common",
+        // @ts-expect-error: Mismatch type
+        d3.axisLeft(commonY).ticks(20)
+      );
+  
+      const points = commonItems.map((d) => [
+        x(d.date),
+        commonY(d.value),
+        d.title,
+      ]);
+  
+      const groups = d3.rollup(
+        points,
+        (v) => Object.assign(v, { z: v[0][2] }),
+        (d) => d[2]
+      );
+  
+      renderPath(svg, "#a0e6ff", "path-common", groups.values(), d3.line());
+    }
 
-    const groups = d3.rollup(
-      points,
-      (v) => Object.assign(v, { z: v[0][2] }),
-      (d) => d[2]
-    );
-
-    renderPath(svg, "#a0e6ff", "path-common", groups.values(), d3.line());
 
     // -------------------------------------------------------------------- //
 
