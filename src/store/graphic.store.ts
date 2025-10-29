@@ -34,19 +34,19 @@ export const useGraphicStore = create<Store>()((set, get) => ({
     const data: Data = {
       "mounth": dateRange.map((date, i) => ({
         title: "Mounth, m3",
-        value: d3.randomUniform(1 + i, 3 + i)(),
+        value: i > 25 ? d3.randomUniform(1 + i, 3 + i)() : d3.randomUniform(10 + i, 13 + i)(),
         color: "#fade91",
         date,
       })),
       "day": dateRange.map((date, i) => ({
         title: "m3 / day",
-        value: d3.randomUniform(3 + i, 4 + i)(),
+        value: i > 25 ? d3.randomUniform(30 + i, 40 + i)() : d3.randomUniform(8 + i, 10 + i)(),
         color: "#e8fa91",
         date,
       })),
       "water": dateRange.map((date, i) => ({
         title: "water, %(0-100)",
-        value: d3.randomUniform(5 + i, 6 + i)(),
+        value: d3.randomUniform(40 + i, 46 + i)(),
         color: "#a1f0c2",
         date,
       })),
